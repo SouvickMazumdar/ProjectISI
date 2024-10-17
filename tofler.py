@@ -120,7 +120,7 @@ def content(option_company):
     finance_div.click()
     time.sleep(1)
     browser.execute_script("window.scrollBy(0, 240)")
-    time.sleep(3)
+    time.sleep(4)
 
     zoom_level = 0.8
     browser.execute_script(f"document.body.style.zoom='{zoom_level}';")
