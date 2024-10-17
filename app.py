@@ -95,18 +95,24 @@ if st.button('Lets Compare'):
 
                 
         if option1 == 'Zauba Corp':
-            content, image_div = zauba.content(option2)  # Ensure this returns a string or appropriate content
+            content,basic_table,directors_table,past_directors_table = zauba.content(option2)  # Ensure this returns a string or appropriate content
 
             if content=="":
-                st.markdown('<div class="heading">No Data Found</div>', unsafe_allow_html=True)
+                st.markdown('<div class="heading">No Data Found. Try other company</div>', unsafe_allow_html=True)
             else:
                 # Overview Section
                 st.markdown('<div class="heading">Basic Information</div>', unsafe_allow_html=True)
                 st.markdown(f'<div class="output-box">{content}</div>', unsafe_allow_html=True)
 
                 # Financial Section
-                if image_div!="":
-                    st.markdown('<div class="heading">Financial</div>', unsafe_allow_html=True)
-                    st.image(image_div, caption="Finance Table", use_column_width=True)
+                if list(basic_table)!="":
+                    st.markdown('<div class="heading">Company Details</div>', unsafe_allow_html=True)
+                    st.dataframe(basic_table,use_container_width=True)
+                if list(directors_table)!="":
+                    st.markdown('<div class="heading">Current Directors Details</div>', unsafe_allow_html=True)
+                    st.dataframe(directors_table,use_container_width=True)
+                if list(past_directors_table)!="":
+                    st.markdown('<div class="heading">Past Director Details</div>', unsafe_allow_html=True)
+                    st.dataframe(past_directors_table,use_container_width=True)
 
 
