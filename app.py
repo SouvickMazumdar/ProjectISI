@@ -7,12 +7,12 @@ def company_list(csv_file):
     df=pd.read_csv(csv_file)
     l=[" ".join(i.upper().split('_')) for i in df["Name"].to_list()]
     return l
-
+# #004c4c
 # CSS for styling##ADD8E6
 st.markdown("""
     <style>
     .main {
-    background-color:#004c4c;
+    background-color: #004c4c;
     }
      .stSelectbox {
         background-color: #ADD8E6; /* Background color */
@@ -68,7 +68,7 @@ with col2:
 if st.button('Lets Compare'):
     with st.spinner("Fetching Data...."):
         if option1 == 'Tofler':
-            content, image_div = tofler.content(option2)  # Ensure this returns a string or appropriate content
+            content, image_div,cn_image, content_dir, directors = tofler.content(option2)  # Ensure this returns a string or appropriate content
             if content=="":
                 st.markdown('<div class="heading">No Data Found</div>', unsafe_allow_html=True)
             else:
@@ -80,6 +80,20 @@ if st.button('Lets Compare'):
                 if image_div!="":
                     st.markdown('<div class="heading">Financial</div>', unsafe_allow_html=True)
                     st.image(image_div, caption="Finance Table", use_column_width=True)
+                # Company Networks 
+                if cn_image!="":
+                    st.markdown('<div class="heading">Company Networks</div>', unsafe_allow_html=True)
+                    st.image(cn_image, caption="Company Networks", use_column_width=True)
+                # Directors
+                if directors!="":
+                    table=pd.DataFrame(directors,columns=["Date","Name","Designation"])
+                    table.index = range(1, len(table) + 1)
+                    st.markdown('<div class="heading">Directors</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="output-box">{content_dir}</div>', unsafe_allow_html=True)
+                    st.dataframe(table,use_container_width=True) 
+
+
+                
         if option1 == 'Zauba Corp':
             content, image_div = zauba.content(option2)  # Ensure this returns a string or appropriate content
 
