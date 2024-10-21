@@ -68,7 +68,7 @@ with col2:
 if st.button('Lets Compare'):
     with st.spinner("Fetching Data...."):
         if option1 == 'Tofler':
-            content, image_div,cn_image, content_dir, directors = tofler.content(option2)  # Ensure this returns a string or appropriate content
+            content, fin_table,cn_image, content_dir, directors = tofler.content(option2)  # Ensure this returns a string or appropriate content
             if content=="":
                 st.markdown('<div class="heading">No Data Found</div>', unsafe_allow_html=True)
             else:
@@ -77,9 +77,11 @@ if st.button('Lets Compare'):
                 st.markdown(f'<div class="output-box">{content}</div>', unsafe_allow_html=True)
 
                 # Financial Section
-                if image_div!="":
+                if fin_table!="":
+                    fin_table = pd.DataFrame(fin_table,columns=["Opertating Revenue","Over INR 500 cr"])
+                    fin_table.index = range(1, len(fin_table) + 1)
                     st.markdown('<div class="heading">Financial</div>', unsafe_allow_html=True)
-                    st.image(image_div, caption="Finance Table", use_column_width=True)
+                    st.dataframe(fin_table, use_container_width=True)
                 # Company Networks 
                 if cn_image!="":
                     st.markdown('<div class="heading">Company Networks</div>', unsafe_allow_html=True)

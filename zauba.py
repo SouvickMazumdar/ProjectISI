@@ -5,19 +5,21 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 # Set up Chrome options
 chrome_options = Options()
 chrome_options.add_argument("--headless")  # Run Chrome in headless mode (without GUI)
 chrome_options.add_argument("--disable-gpu")  # Disable GPU acceleration (for better performance)
-chrome_options.add_argument("--no-sandbox")  # Required if running as root
+# chrome_options.add_argument("--no-sandbox")  # Required if running as root
+chrome_options.add_argument("--disable-dev-shm-usage")
 
 def content(option_company):
-    browser = webdriver.Chrome()
+    browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=chrome_options)
     browser.minimize_window()
-    url = "https://www.zaubacorp.com/"
-    browser.get(url)
+    browser.get("https://www.zaubacorp.com/")
 
     try:
         # print("^^"*100)
