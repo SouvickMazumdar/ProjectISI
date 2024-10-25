@@ -17,7 +17,7 @@ chrome_options.add_argument("--disable-gpu")  # Disable GPU acceleration (for be
 chrome_options.add_argument("--disable-dev-shm-usage")
 
 def content(option_company):
-    browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=chrome_options)
+    browser = webdriver.Chrome()
     browser.minimize_window()
     browser.get("https://www.zaubacorp.com/")
 

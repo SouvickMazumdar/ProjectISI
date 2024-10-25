@@ -6,7 +6,7 @@ import requests
 # from io import BytesIO
 # from PIL import Image
 # from PIL import ImageEnhance
-# from selenium.common import TimeoutException
+from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.service import Service
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -16,15 +16,19 @@ from selenium.webdriver.support import expected_conditions as EC
 # from selenium.webdriver.support.select import Select
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+import base64
+from IPython.display import HTML, display_html
 
 # Set up Chrome options
-
+def image_to_base64(file_path):
+    with open(file_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode("utf-8")
 def content(option_company):
     chrome_options = Options()
     chrome_options.add_argument("--headless")  # Run Chrome in headless mode (without GUI)
     chrome_options.add_argument("--disable-gpu")  # Disable GPU acceleration (for better performance)
     chrome_options.add_argument("--no-sandbox")  # Required if running as root
-    browser= webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=chrome_options)
+    browser= webdriver.Chrome()
 
     # browser.minimize_window()
     url = 'https://www.tofler.in/'
@@ -44,8 +48,13 @@ def content(option_company):
         # OVERVIEW part
         ans=""
         try:
+            try:
+                browser.find_element(By.XPATH,"/html/body/section[5]/section[2]/div[1]/div[1]/p").click()
+            except Exception:
+                pass
+
             content_div = WebDriverWait(browser, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "div[id='overview'] div[class='card-content']"))
+                EC.presence_of_element_located((By.XPATH, "/html/body/section[5]/section[2]/div[1]/div[1]/div[3]"))
             )
             paragraphs = content_div.find_elements(By.TAG_NAME, 'p')
             ans = "\n\n".join([paragraph.text for paragraph in paragraphs])
@@ -61,17 +70,39 @@ def content(option_company):
 
 
 
-
-        # Network image
-        image_data=""
+        # Registration Details
+        reg_d=""
         try:
-            img_div=browser.find_element(By.ID,"companyNetwork")
-            img_element=img_div.find_element(By.CLASS_NAME,"hide-on-print")
-            img_url=img_element.get_attribute('src')
-
-            image_data = requests.get(img_url).content
+            reg_div=browser.find_element(By.ID,"registered-details-module")
+            reg=reg_div.find_element(By.CLASS_NAME,"registered_box_wrapper")
+            child_reg=reg.find_elements(By.TAG_NAME,"div")
+            reg_d = []
+            for child in child_reg:
+                left=child.find_element(By.TAG_NAME,"h3")
+                right=child.find_element(By.TAG_NAME,"span")
+                reg_d.append([left.text,right.text])
+            ext=reg_div.find_element(By.CLASS_NAME,"gap-4")
+            child_ext=ext.find_elements(By.TAG_NAME,"div")
+            kt=["Type"]
+            st=""
+            for child in child_ext:
+                st=st+child.text+","
+            kt.append(st[0:-1])
+            reg_d.append(kt)
         except Exception:
             pass
+
+
+        # # Network image
+        # image_data=""
+        # try:
+        #     img_div=browser.find_element(By.ID,"companyNetwork")
+        #     img_element=img_div.find_element(By.CLASS_NAME,"hide-on-print")
+        #     img_url=img_element.get_attribute('src')
+        #
+        #     image_data = requests.get(img_url).content
+        # except Exception:
+        #     pass
 
         # with open('image.jpg', 'wb') as file:
         #     file.write(image_data)
@@ -82,54 +113,85 @@ def content(option_company):
 
 
         # Directors
-        ans_dir=""
         ar=""
         try:
-            content_div_dir = WebDriverWait(browser, 10).until(
-                EC.presence_of_element_located((By.ID, "overview_directors"))
-            )
-            paragraphs_dir = content_div_dir.find_elements(By.TAG_NAME, 'p')
-            l=[]
-            for paragraph in paragraphs_dir:
-                if paragraph.get_attribute("class") not in ["tml_dr_name","tml_dr_design"]:
-                    print(paragraph.get_attribute("class"))
-                    l.append(paragraph.text)
-            ans_dir = "\n\n".join(l)
-
-            director=browser.find_element(By.ID,"directors-time_line-view")
-            child_elements=director.find_elements(By.CLASS_NAME, "timeline_card")
+            director_div=browser.find_element(By.ID,"people-module")
+            director=director_div.find_element(By.TAG_NAME,"tbody")
+            child_elements=director.find_elements(By.TAG_NAME, "tr")
             ar=[]
             # print(len(child_elements),"$"*100)
             for child in child_elements:
+                td_child=child.find_elements(By.TAG_NAME,"td")
+                des = td_child[0].text
+                name = td_child[1].text
+                if name.find('\n')!=-1:
+                    name=name[0:name.find('\n')]
+                din = td_child[2].text
+                tenure = td_child[3].text
+                ar.append([des, name, din, tenure])
+        except Exception:
+            pass
 
-                date = child.find_element(By.CLASS_NAME, "tml_year").text
-                name = child.find_element(By.CLASS_NAME, "tml_dr_name").text
-                role = child.find_element(By.CLASS_NAME, "tml_dr_design").text
-                # print([date,name,role])
-                ar.append([date, name, role])
+
+        # Charges on asset
+        asset_table=""
+        try:
+            tar_ass=browser.find_element(By.XPATH,"/html/body/section[5]/section[13]/div/div[2]/div[1]/div[1]")
+            child_asst=tar_ass.find_elements(By.CLASS_NAME,"mobile-hide")
+            asset_table=[]
+            for child in child_asst:
+                sub_child=child.find_element(By.CLASS_NAME,"flex-col")
+                sub_child=sub_child.find_elements(By.TAG_NAME,"p")
+                one=sub_child[0].text
+                two=sub_child[1].find_element(By.TAG_NAME,"span").text
+                three=sub_child[2].find_element(By.TAG_NAME,"span").text
+                asset_table.append([one,two,three])
+            print(asset_table)
         except Exception:
             pass
 
 
 
-        # print(table)
 
-
-
+        # Key Metrics
+        key_table=""
+        try:
+            key_div=browser.find_element(By.XPATH,"/html/body/section[5]/section[2]/div[3]/div[1]/div[2]/div[2]")
+            key_child=key_div.find_elements(By.CLASS_NAME,"flex-col")
+            key_table=[]
+            for child in key_child:
+                one=child.find_element(By.CLASS_NAME,"font-regular").text
+                two=child.find_element(By.CLASS_NAME,"text-dark").text
+                three=child.find_element(By.CLASS_NAME,"text-sm").text
+                if one.find("GET PRO")!=-1 or two.find("GET PRO")!=-1 or three.find("GET PRO")!=-1:
+                    key_table=""
+                    raise
+                key_table.append([one,two,three])
+        except Exception:
+            pass
 
         # Financial Part
         fin_ar=""
         try:
-            browser.find_element(By.ID,"financials-tab").click()
-            content_fin=browser.find_element(By.XPATH,"/html/body/main/div[1]/div[1]/div/div[3]/div[1]/div[1]/div/table/tbody")
-            child_elements=content_fin.find_elements(By.TAG_NAME,"tr")
-            child_elements=child_elements[1:-1]
+            # browser.find_element(By.ID,"financials-tab").click()
+            fin_tab=browser.find_element(By.XPATH,"/html/body/section[5]/section[9]/div/div[2]/div[1]/table/tbody")
+            child_elements=fin_tab.find_elements(By.TAG_NAME,"tr")
+            # child_elements=child_elements[1:-1]
             fin_ar=[]
             for child in child_elements:
                 k=child.find_elements(By.TAG_NAME,"td")
-                left=k[0].text
-                right=k[1].text
-                fin_ar.append([left,right])
+                # print(k)
+                one=k[0].text
+                two=k[1].text
+                three=k[2].text
+                four=k[3].text
+                five=k[4].text
+                six=k[5].text
+                if one.find("GET PRO")!=-1 or two.find("GET PRO")!=-1 or three.find("GET PRO")!=-1 or four.find("GET PRO")!=-1 or five.find("GET PRO")!=-1 or six.find("GET PRO")!=-1:
+                    fin_ar=""
+                    raise
+                fin_ar.append([one,two,three,four,five,six])
+            # print(fin_ar,"%^"*100)
         except Exception:
             pass
 
@@ -173,9 +235,9 @@ def content(option_company):
 
 
 
-        return ans,fin_ar,image_data,ans_dir,ar
+        return ans,fin_ar,key_table,reg_d,ar,asset_table
     except Exception:
         browser.quit()
-        return "","","","",""
+        return "","","","","",""
 
 
