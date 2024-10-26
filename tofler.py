@@ -20,15 +20,12 @@ import base64
 from IPython.display import HTML, display_html
 
 # Set up Chrome options
-def image_to_base64(file_path):
-    with open(file_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode("utf-8")
 def content(option_company):
     chrome_options = Options()
     chrome_options.add_argument("--headless")  # Run Chrome in headless mode (without GUI)
     chrome_options.add_argument("--disable-gpu")  # Disable GPU acceleration (for better performance)
     chrome_options.add_argument("--no-sandbox")  # Required if running as root
-    browser= webdriver.Chrome()
+    browser= webdriver.Chrome(options=chrome_options)
 
     # browser.minimize_window()
     url = 'https://www.tofler.in/'
@@ -91,26 +88,6 @@ def content(option_company):
             reg_d.append(kt)
         except Exception:
             pass
-
-
-        # # Network image
-        # image_data=""
-        # try:
-        #     img_div=browser.find_element(By.ID,"companyNetwork")
-        #     img_element=img_div.find_element(By.CLASS_NAME,"hide-on-print")
-        #     img_url=img_element.get_attribute('src')
-        #
-        #     image_data = requests.get(img_url).content
-        # except Exception:
-        #     pass
-
-        # with open('image.jpg', 'wb') as file:
-        #     file.write(image_data)
-        # print("%"*100)
-
-
-
-
 
         # Directors
         ar=""

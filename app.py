@@ -5,59 +5,10 @@ import pandas as pd
 from IPython.display import HTML, display_html
 import streamlit.components.v1 as components
 
-
 def company_list(csv_file):
     df=pd.read_csv(csv_file)
     l=[i.replace(" LTD","").replace(" LTD.","") for i in df["Company Name"].to_list()]
     return l
-def path_to_image_html(path):
-    return f'<img src="{path}" width="20" height="20">'
-
-
-def create_financial_table(fin_ar):
-    # Create HTML table header
-    html = """
-    <table border="1" style="width:100%; text-align:center; background-color: white; hieght: 50px">
-        <thead">
-            <tr>
-                <th>Operating Revenue</th>
-                <th>Over INR 500 cr</th>
-                <th>TOP/DOWN</th>
-            </tr>
-        </thead>
-        <tbody>
-    """
-
-    # Add rows to the HTML table
-    for row in fin_ar:
-        operating_revenue = row[0]
-        over_inr_500_cr = row[1]
-        up_down_image_base64 = row[2]
-
-        # If the TOP/DOWN column has an image, embed it in the cell
-        if up_down_image_base64:
-            if over_inr_500_cr[0]=='-':
-                up_down_img_tag = f'<img src="data:image/svg;base64,{up_down_image_base64}" width="30"/>'
-            else:
-                up_down_img_tag = f'<img src="data:image/svg;base64,{up_down_image_base64}" width="30"/>'
-        else:
-            up_down_img_tag = "N/A"
-
-        html += f"""
-        <tr>
-            <td>{operating_revenue}</td>
-            <td>{over_inr_500_cr}</td>
-            <td>{up_down_img_tag}</td>
-        </tr>
-        """
-
-    html += """
-        </tbody>
-    </table>
-    """
-    return html
-
-
 # #004c4c
 # CSS for styling##ADD8E6
 st.markdown("""
@@ -138,7 +89,7 @@ if st.button('Lets Compare'):
                 # financial_table_html=create_financial_table(fin_table)
                 # components.html(financial_table_html, height=1000)
                 st.dataframe(fin_table, use_container_width=True)
-            # Company Networks
+            # Key Networks
             if key_table!="":
                 table = pd.DataFrame(key_table, columns=["KEY", "VALUE", "INC/DEC"])
                 table.index = range(1, len(table) + 1)
